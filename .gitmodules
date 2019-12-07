@@ -1,0 +1,3 @@
+[submodule "LTS"]
+	path = LTS
+	url = https://github.com/ModificationStation/1.7.3-LTS.git
