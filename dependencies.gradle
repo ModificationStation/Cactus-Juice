@@ -1,0 +1,7 @@
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    
+    // https://repo1.maven.org/maven2/com/cedarsoftware/json-io/4.10.1/json-io-4.10.1.jar,A2A0BD324F4A24D164B037529EA2391A
+    compile group: 'com.cedarsoftware', name: 'json-io', version: '4.10.1'
+
+}

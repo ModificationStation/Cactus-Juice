@@ -11,12 +11,7 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    // https://mvnrepository.com/artifact/com.cedarsoftware/json-io
-    compile group: 'com.cedarsoftware', name: 'json-io', version: '4.11.1'
-
-}
+apply from: 'dependencies.gradle'
 
 tasks.withType(Jar) {
     destinationDir = file("$rootDir/out")
@@ -27,5 +22,9 @@ jar {
         attributes 'Implementation-Title': 'Gradle Quickstart',
                 'Implementation-Version': version,
                 'Main-Class': 'net.modificationstation.cactusjuice.Main'
+    }
+
+    from {
+        "dependencies.gradle"
     }
 }
