@@ -1,8 +1,9 @@
 package net.modificationstation.cactusjuice.jsontemplate;
 
-import java.util.HashMap;
+import lombok.Setter;
 
+@Setter
 public class PasteePost {
-    public PasteePostSection[] sections;
-    public String description;
+    private PasteePostSection[] sections;
+    private String description;
 }

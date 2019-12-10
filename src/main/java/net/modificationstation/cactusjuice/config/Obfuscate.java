@@ -1,6 +1,8 @@
 package net.modificationstation.cactusjuice.config;
 
+import lombok.Getter;
+
 public class Obfuscate {
-    public static String clientOut;
-    public static String serverOut;
+    @Getter private static String clientOut;
+    @Getter private static String serverOut;
 }

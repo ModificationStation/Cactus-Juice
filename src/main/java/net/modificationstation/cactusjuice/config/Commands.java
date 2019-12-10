@@ -1,28 +1,30 @@
 package net.modificationstation.cactusjuice.config;
 
+import lombok.Getter;
+
 public class Commands {
-    public static String patcher;
-    public static String jadRetro;
-    public static String fernflower;
-    public static String jadwin;
-    public static String jadlinux;
-    public static String jadosx;
-    public static String exceptor;
-    public static String specialSource;
-    public static String cmdRG;
-    public static String cmdRGReobf;
-    public static String cmdJadretro;
-    public static String cmdRecompClt;
-    public static String cmdRecompSrv;
-    public static String cmdStartClt;
-    public static String cmdStartSrv;
-    public static String cmdJadwindows;
-    public static String cmdJadlinux;
-    public static String cmdJadosx;
-    public static String cmdPatchwin;
-    public static String cmdPatchlinux;
-    public static String cmdPatchosx;
-    public static String cmdFernflower;
-    public static String cmdExceptor;
-    public static String cmdSpecialSource;
+    @Getter private static String patcher;
+    @Getter private static String jadRetro;
+    @Getter private static String fernflower;
+    @Getter private static String jadwin;
+    @Getter private static String jadlinux;
+    @Getter private static String jadosx;
+    @Getter private static String exceptor;
+    @Getter private static String specialSource;
+    @Getter private static String cmdRG;
+    @Getter private static String cmdRGReobf;
+    @Getter private static String cmdJadretro;
+    @Getter private static String cmdRecompClt;
+    @Getter private static String cmdRecompSrv;
+    @Getter private static String cmdStartClt;
+    @Getter private static String cmdStartSrv;
+    @Getter private static String cmdJadwindows;
+    @Getter private static String cmdJadlinux;
+    @Getter private static String cmdJadosx;
+    @Getter private static String cmdPatchwin;
+    @Getter private static String cmdPatchlinux;
+    @Getter private static String cmdPatchosx;
+    @Getter private static String cmdFernflower;
+    @Getter private static String cmdExceptor;
+    @Getter private static String cmdSpecialSource;
 }

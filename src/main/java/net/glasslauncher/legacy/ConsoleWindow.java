@@ -26,7 +26,7 @@ public class ConsoleWindow extends JFrame {
         setTitle("Cactus Juice Console");
         addWindowListener(new WindowAdapter() {
                               public void windowClosing(WindowEvent we) {
-                                  Main.logger.info("Closing...");
+                                  Main.getLogger().info("Closing...");
                                   dispose();
                                   System.exit(0);
                               }

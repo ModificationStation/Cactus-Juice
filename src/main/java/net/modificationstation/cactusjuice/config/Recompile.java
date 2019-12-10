@@ -1,9 +1,11 @@
 package net.modificationstation.cactusjuice.config;
 
+import lombok.Getter;
+
 public class Recompile {
-    public static String binClient;
-    public static String binServer;
-    public static String classPathClient;
-    public static String classPathServer;
-    public static String clientFixes;
+    @Getter private static String binClient;
+    @Getter private static String binServer;
+    @Getter private static String classPathClient;
+    @Getter private static String classPathServer;
+    @Getter private static String clientFixes;
 }

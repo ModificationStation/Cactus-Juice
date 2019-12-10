@@ -4,34 +4,24 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import lombok.Getter;
 import net.modificationstation.cactusjuice.Main;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
-import java.util.HashMap;
 import java.util.Set;
 
 public class Config {
 
-    public static GsonBuilder gsonBuilder;
+    @Getter private static GsonBuilder gsonBuilder;
 
-    public static Directories directories = new Directories();
+    @Getter private static final boolean hasConsole = System.console() != null;
 
-    public static final boolean hasConsole = System.console() != null;
+    @Getter private static String instPath = getCactusjuicePath();
 
-    public static String cactusjuicePath = getCactusjuicePath();
-
-    public static String os = getOS();
-
-    /**
-     * Used by JSON-IO to make output JSON strings look like actual JSON.
-     */
-    public static HashMap prettyprint = new HashMap() {{
-        put("PRETTY_PRINT", true);
-        put("TYPE", false);
-    }};
+    @Getter private static String os = getOSString();
 
     public static void loadCJConfigFile() throws FileNotFoundException {
         gsonBuilder = (new GsonBuilder()).excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT);
@@ -45,7 +35,7 @@ public class Config {
                 Class cls = Class.forName("net.modificationstation.cactusjuice.config." + key);
                 gson.fromJson(configObj.get((String) key), cls);
             } catch (Exception e) {
-                Main.logger.info("Config class \"" + key + "\" not found!");
+                Main.getLogger().info("Config class \"" + key + "\" not found!");
                 e.printStackTrace();
                 return;
             }
@@ -56,7 +46,7 @@ public class Config {
      * Gets the OS of the user.
      * @return "windows" | "osx" | "unix"
      */
-    private static String getOS() {
+    private static String getOSString() {
         String os = (System.getProperty("os.name")).toLowerCase();
         if (os.contains("win")) {
             return "windows";

@@ -1,11 +1,13 @@
 package net.modificationstation.cactusjuice.config;
 
+import lombok.Getter;
+
 public class Decompile {
-    public static String ffClientConf;
-    public static String ffServerConf;
-    public static String ffClientOut;
-    public static String ffServerOut;
-    public static String ffClientSrc;
-    public static String ffServerSrc;
-    public static String ffSource;
+    @Getter private static String ffClientConf;
+    @Getter private static String ffServerConf;
+    @Getter private static String ffClientOut;
+    @Getter private static String ffServerOut;
+    @Getter private static String ffClientSrc;
+    @Getter private static String ffServerSrc;
+    @Getter private static String ffSource;
 }

@@ -1,8 +1,8 @@
 package net.glasslauncher.legacy.util;
+
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonWriter;
-import net.modificationstation.cactusjuice.config.Config;
 import net.modificationstation.cactusjuice.Main;
+import net.modificationstation.cactusjuice.config.Config;
 import net.modificationstation.cactusjuice.jsontemplate.PasteePost;
 import net.modificationstation.cactusjuice.jsontemplate.PasteePostSection;
 import net.modificationstation.cactusjuice.jsontemplate.PasteeResponse;
@@ -15,7 +15,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 public class Pastee {
@@ -40,17 +39,18 @@ public class Pastee {
 
     public String post(String name) {
         try {
-            Gson gson = Config.gsonBuilder.create();
+            Gson gson = Config.getGsonBuilder().create();
             req.setRequestMethod("POST");
             req.setRequestProperty("Content-Type", "application/json");
             req.setRequestProperty("X-Auth-Token", "ak4XFTvAbNJvaEIoycGzOhCYeLkd7JFpZLVtUgutM");
             req.setDoOutput(true);
             req.setDoInput(true);
             PasteePost pasteePost = new PasteePost();
-            pasteePost.description = name;
-            pasteePost.sections = new PasteePostSection[1];
-            pasteePost.sections[0] = new PasteePostSection();
-            pasteePost.sections[0].contents = text;
+            pasteePost.setDescription(name);
+            PasteePostSection[] pasteePostSections = new PasteePostSection[1];
+            pasteePostSections[0] = new PasteePostSection();
+            pasteePostSections[0].setContents(text);
+            pasteePost.setSections(pasteePostSections);
 
             OutputStreamWriter wr = new OutputStreamWriter(req.getOutputStream());
             wr.write(gson.toJson(pasteePost));
@@ -64,12 +64,12 @@ public class Pastee {
             PasteeResponse resp = gson.fromJson(resj.toString(), PasteeResponse.class);
 
             if (req.getResponseCode() != 201) {
-                Main.logger.severe("Error sending request!");
-                Main.logger.severe("Code: " + req.getResponseCode());
+                Main.getLogger().severe("Error sending request!");
+                Main.getLogger().severe("Code: " + req.getResponseCode());
                 throw new HTTPException(req.getResponseCode());
             }
-            Main.logger.info(resj.toString());
-            return resp.link;
+            Main.getLogger().info(resj.toString());
+            return resp.getLink();
         } catch (Exception e) {
             e.printStackTrace();
             return null;

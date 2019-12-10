@@ -1,9 +1,11 @@
 package net.modificationstation.cactusjuice.config;
 
+import lombok.Getter;
+
 public class Output {
-    public static String binOut;
-    public static String binClient;
-    public static String binServer;
-    public static String srcClient;
-    public static String srcServer;
+    @Getter private static String binOut;
+    @Getter private static String binClient;
+    @Getter private static String binServer;
+    @Getter private static String srcClient;
+    @Getter private static String srcServer;
 }

@@ -1,5 +1,8 @@
 package net.modificationstation.cactusjuice.jsontemplate;
 
+import lombok.Setter;
+
+@Setter
 public class PasteePostSection {
-    public String contents;
+    private String contents;
 }

@@ -1,5 +1,7 @@
 package net.modificationstation.cactusjuice;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import net.glasslauncher.legacy.ConsoleWindow;
 import net.glasslauncher.legacy.util.Classpath;
 import net.glasslauncher.legacy.util.FileUtils;
@@ -19,9 +21,9 @@ import java.util.Scanner;
 import java.util.logging.*;
 
 public class Main {
-    public static Logger logger = Logger.getLogger("cactusjuice");
+    @Getter private static Logger logger = Logger.getLogger("cactusjuice");
 
-    private static ArrayList libs = new ArrayList();
+    @Getter(AccessLevel.PRIVATE) private static ArrayList libs = new ArrayList();
 
     public static void main(String[] args) {
         try {
@@ -29,7 +31,7 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (!Config.hasConsole) {
+        if (!Config.isHasConsole()) {
             ConsoleWindow console = new ConsoleWindow();
         }
         makeLogger();
@@ -37,7 +39,7 @@ public class Main {
 
         for (Object lib : libs.toArray()) {
             try {
-                Classpath.addFile(Config.cactusjuicePath + "/lib/" + lib);
+                Classpath.addFile(Config.getInstPath() + "/lib/" + lib);
             } catch (Exception e) {
                 logger.info("Failed to load \"" + lib + "\".");
                 e.printStackTrace();
@@ -53,9 +55,9 @@ public class Main {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
             LocalDateTime now = LocalDateTime.now();
             String time = dtf.format(now);
-            File logdir = new File(Config.cactusjuicePath + "/cactj-logs");
+            File logdir = new File(Config.getInstPath() + "/cactj-logs");
             logdir.mkdirs();
-            Handler file_handler = new FileHandler(Config.cactusjuicePath + "/cactj-logs/" + time + ".log");
+            Handler file_handler = new FileHandler(Config.getInstPath() + "/cactj-logs/" + time + ".log");
             SimpleFormatter format = new SimpleFormatter();
             logger.addHandler(file_handler);
             file_handler.setFormatter(format);
@@ -89,7 +91,7 @@ public class Main {
                 String[] parts = line.replaceFirst(" {4}// ", "").split(",");
                 try {
                     libs.add(parts[0].substring(parts[0].lastIndexOf('/') + 1));
-                    FileUtils.downloadFile(parts[0], Config.cactusjuicePath + "/lib/", parts[1].replace("\r", "").replace("\n", ""));
+                    FileUtils.downloadFile(parts[0], Config.getInstPath() + "/lib/", parts[1].replace("\r", "").replace("\n", ""));
                 } catch (Exception e) {
                     logger.info("Failed to download dependency. Invalid formatting?");
                     e.printStackTrace();
@@ -102,7 +104,7 @@ public class Main {
         logger.info("Welcome to Cactus Juice!");
         try {
             Config.loadCJConfigFile();
-            logger.info(Directories.dirTemp);
+            logger.info(Directories.getDirWorkspace());
         } catch (Exception e) {
             e.printStackTrace();
             return;

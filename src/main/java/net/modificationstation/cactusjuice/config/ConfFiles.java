@@ -1,11 +1,13 @@
 package net.modificationstation.cactusjuice.config;
 
+import lombok.Getter;
+
 public class ConfFiles {
-    public static String classes;
-    public static String methods;
-    public static String fields;
-    public static String rgClient;
-    public static String rgServer;
-    public static String roClient;
-    public static String roServer;
+    @Getter private static String classes;
+    @Getter private static String methods;
+    @Getter private static String fields;
+    @Getter private static String rgClient;
+    @Getter private static String rgServer;
+    @Getter private static String roClient;
+    @Getter private static String roServer;
 }

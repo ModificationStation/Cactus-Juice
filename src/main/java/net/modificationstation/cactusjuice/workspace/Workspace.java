@@ -5,13 +5,9 @@ import net.modificationstation.cactusjuice.config.Directories;
 import java.io.File;
 
 public class Workspace {
-    static File workspaceDir;
-
-    public Workspace() {
-        workspaceDir = new File(Directories.dirWorkspace);
-    }
 
     public static void setupWorkspace() {
+        File workspaceDir = new File(Directories.getDirWorkspace());
         workspaceDir.mkdirs();
         try {
             SetupWorkspace.create();

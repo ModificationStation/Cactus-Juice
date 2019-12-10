@@ -1,10 +1,12 @@
 package net.modificationstation.cactusjuice.config;
 
+import lombok.Getter;
+
 public class Exceptor {
-    public static String xClientCfg;
-    public static String xServerCfg;
-    public static String xClientOut;
-    public static String xServerOut;
-    public static String xClientLog;
-    public static String xServerLog;
+    @Getter private static String xClientCfg;
+    @Getter private static String xServerCfg;
+    @Getter private static String xClientOut;
+    @Getter private static String xServerOut;
+    @Getter private static String xClientLog;
+    @Getter private static String xServerLog;
 }

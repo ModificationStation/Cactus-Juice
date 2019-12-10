@@ -8,9 +8,9 @@ import java.io.FileNotFoundException;
 
 public class SetupWorkspace {
     public static void create() throws FileNotFoundException {
-        Main.logger.info("Creating workspace...");
-        if ((new File(Directories.dirWorkspace)).exists()) {
-            Main.logger.info("Exists!");
+        Main.getLogger().info("Creating workspace...");
+        if ((new File(Directories.getDirWorkspace())).exists()) {
+            Main.getLogger().info("Exists!");
         }
     }
 

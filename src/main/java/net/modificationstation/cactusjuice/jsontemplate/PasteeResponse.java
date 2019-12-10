@@ -1,6 +1,9 @@
 package net.modificationstation.cactusjuice.jsontemplate;
 
+import lombok.Getter;
+
+@Getter
 public class PasteeResponse {
-    public String id;
-    public String link;
+    private String id;
+    private String link;
 }

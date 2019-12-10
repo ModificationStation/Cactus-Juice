@@ -1,7 +1,7 @@
 package net.glasslauncher.legacy.util;
 
-import net.modificationstation.cactusjuice.config.Config;
 import net.modificationstation.cactusjuice.Main;
+import net.modificationstation.cactusjuice.config.Config;
 
 import java.io.*;
 import java.net.URL;
@@ -60,7 +60,7 @@ public class FileUtils {
         try {
             url = new URL(urlStr);
         } catch (Exception e) {
-            Main.logger.info("Failed to download file \"" + urlStr + "\": Invalid URL.");
+            Main.getLogger().info("Failed to download file \"" + urlStr + "\": Invalid URL.");
             e.printStackTrace();
             return false;
         }
@@ -74,13 +74,13 @@ public class FileUtils {
             }
             path.mkdirs();
         } catch (Exception e) {
-            Main.logger.info("Failed to download file \"" + urlStr + "\": Invalid path.");
+            Main.getLogger().info("Failed to download file \"" + urlStr + "\": Invalid path.");
             e.printStackTrace();
             return false;
         }
 
         try {
-            Main.logger.info("Downloading \"" + urlStr + "\".");
+            Main.getLogger().info("Downloading \"" + urlStr + "\".");
             BufferedInputStream inputStream = new BufferedInputStream(url.openStream());
             FileOutputStream fileOS = new FileOutputStream(file);
             byte[] data = new byte[1024];
@@ -90,7 +90,7 @@ public class FileUtils {
             }
             fileOS.close();
         } catch (Exception e) {
-            Main.logger.info("Failed to download file \"" + urlStr + "\":");
+            Main.getLogger().info("Failed to download file \"" + urlStr + "\":");
             e.printStackTrace();
             return false;
         }
@@ -151,7 +151,7 @@ public class FileUtils {
         String destDirBypass;
 
         File dir = new File(destDir);
-        if (Config.os.equals("windows")) {
+        if (Config.getOs().equals("windows")) {
             destDirBypass = "\\\\?\\" + destDir;
         } else {
             destDirBypass = destDir;

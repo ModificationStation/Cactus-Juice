@@ -1,9 +1,11 @@
 package net.modificationstation.cactusjuice.config;
 
+import lombok.Getter;
+
 public class Patches {
-    public static String patchClient;
-    public static String patchServer;
-    public static String patchTemp;
-    public static String ffPatchClient;
-    public static String ffPatchServer;
+    @Getter private static String patchClient;
+    @Getter private static String patchServer;
+    @Getter private static String patchTemp;
+    @Getter private static String ffPatchClient;
+    @Getter private static String ffPatchServer;
 }

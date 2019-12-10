@@ -1,8 +1,11 @@
 package net.modificationstation.cactusjuice.jsontemplate;
 
+import lombok.Getter;
+
+@Getter
 public class DependencyNatives {
-    public String lwjglNatives;
-    public String lwjglNativesHash;
-    public String jinputNatives;
-    public String jinputNativesHash;
+    private String lwjglNatives;
+    private String lwjglNativesHash;
+    private String jinputNatives;
+    private String jinputNativesHash;
 }
