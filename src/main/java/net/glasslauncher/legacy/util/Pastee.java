@@ -1,10 +1,11 @@
 package net.glasslauncher.legacy.util;
-
-import com.cedarsoftware.util.io.JsonObject;
-import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
-import net.modificationstation.cactusjuice.Config;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonWriter;
+import net.modificationstation.cactusjuice.config.Config;
 import net.modificationstation.cactusjuice.Main;
+import net.modificationstation.cactusjuice.jsontemplate.PasteePost;
+import net.modificationstation.cactusjuice.jsontemplate.PasteePostSection;
+import net.modificationstation.cactusjuice.jsontemplate.PasteeResponse;
 
 import javax.xml.ws.http.HTTPException;
 import java.io.BufferedReader;
@@ -39,20 +40,20 @@ public class Pastee {
 
     public String post(String name) {
         try {
+            Gson gson = Config.gsonBuilder.create();
             req.setRequestMethod("POST");
             req.setRequestProperty("Content-Type", "application/json");
             req.setRequestProperty("X-Auth-Token", "ak4XFTvAbNJvaEIoycGzOhCYeLkd7JFpZLVtUgutM");
             req.setDoOutput(true);
             req.setDoInput(true);
-            JsonObject paste = new JsonObject();
-            paste.put("description", name);
-            JsonObject section = new JsonObject();
-            section.put("contents", text);
-            ArrayList sections = new ArrayList();
-            sections.add(section);
-            paste.put("sections", sections);
+            PasteePost pasteePost = new PasteePost();
+            pasteePost.description = name;
+            pasteePost.sections = new PasteePostSection[1];
+            pasteePost.sections[0] = new PasteePostSection();
+            pasteePost.sections[0].contents = text;
+
             OutputStreamWriter wr = new OutputStreamWriter(req.getOutputStream());
-            wr.write(JsonWriter.objectToJson(paste, Config.prettyprint));
+            wr.write(gson.toJson(pasteePost));
             wr.flush();
 
             BufferedReader res = new BufferedReader(new InputStreamReader(req.getInputStream()));
@@ -60,7 +61,7 @@ public class Pastee {
             for (String strline = ""; strline != null; strline = res.readLine()) {
                 resj.append(strline);
             }
-            JsonObject resp = (JsonObject) JsonReader.jsonToJava(resj.toString());
+            PasteeResponse resp = gson.fromJson(resj.toString(), PasteeResponse.class);
 
             if (req.getResponseCode() != 201) {
                 Main.logger.severe("Error sending request!");
@@ -68,7 +69,7 @@ public class Pastee {
                 throw new HTTPException(req.getResponseCode());
             }
             Main.logger.info(resj.toString());
-            return (String) resp.get("link");
+            return resp.link;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

@@ -33,6 +33,11 @@ public class ConsoleWindow extends JFrame {
                           }
         );
 
+        try {
+            setIconImage(ImageIO.read(Main.class.getResource("assets/CactusJuice.png").toURI().toURL()));
+        } catch (URISyntaxException | IOException e) {
+            e.printStackTrace();
+        }
         setBounds(0, 0, 600, 300);
 
         textArea.setEditable(false);

@@ -1,6 +1,6 @@
 package net.glasslauncher.legacy.util;
 
-import net.modificationstation.cactusjuice.Config;
+import net.modificationstation.cactusjuice.config.Config;
 import net.modificationstation.cactusjuice.Main;
 
 import java.io.*;

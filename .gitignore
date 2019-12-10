@@ -14,4 +14,7 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 .idea
-out
+out/cactusjuice-1.0.jar
+out/cactj-logs/
+
+out/lib/

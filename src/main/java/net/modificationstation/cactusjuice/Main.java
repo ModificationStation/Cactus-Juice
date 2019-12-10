@@ -3,7 +3,9 @@ package net.modificationstation.cactusjuice;
 import net.glasslauncher.legacy.ConsoleWindow;
 import net.glasslauncher.legacy.util.Classpath;
 import net.glasslauncher.legacy.util.FileUtils;
-import sun.rmi.runtime.Log;
+import net.modificationstation.cactusjuice.config.Config;
+import net.modificationstation.cactusjuice.config.Directories;
+import net.modificationstation.cactusjuice.workspace.Workspace;
 
 import javax.swing.*;
 import java.io.File;
@@ -11,6 +13,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 import java.util.logging.*;
 
@@ -25,7 +29,9 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        ConsoleWindow console = new ConsoleWindow();
+        if (!Config.hasConsole) {
+            ConsoleWindow console = new ConsoleWindow();
+        }
         makeLogger();
         getDeps();
 
@@ -38,6 +44,7 @@ public class Main {
             }
         }
 
+        start(args);
     }
 
     private static void makeLogger() {
@@ -55,6 +62,7 @@ public class Main {
             logger.setLevel(Level.ALL);
             file_handler.setLevel(Level.ALL);
             logger.info("Logging to " + logdir.toString());
+            logger.info("Java version: " + System.getProperty("java.version"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -66,7 +74,7 @@ public class Main {
      *
      * @return True if any were downloaded, False if none were downloaded.
      */
-    public static void getDeps() {
+    private static void getDeps() {
         logger.info("Checking dependencies...");
         String file;
         try {
@@ -87,6 +95,21 @@ public class Main {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    private static void start(String[] a) {
+        logger.info("Welcome to Cactus Juice!");
+        try {
+            Config.loadCJConfigFile();
+            logger.info(Directories.dirTemp);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+        List args = Arrays.asList(a);
+        if (args.contains("setupcj")) {
+            Workspace.setupWorkspace();
         }
     }
 }
