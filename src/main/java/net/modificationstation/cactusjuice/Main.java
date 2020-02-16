@@ -1,29 +1,25 @@
 package net.modificationstation.cactusjuice;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import net.glasslauncher.legacy.ConsoleWindow;
 import net.glasslauncher.legacy.util.Classpath;
 import net.glasslauncher.legacy.util.FileUtils;
-import net.modificationstation.cactusjuice.config.Config;
-import net.modificationstation.cactusjuice.config.Directories;
 import net.modificationstation.cactusjuice.workspace.Workspace;
 
 import javax.swing.*;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.logging.*;
 
 public class Main {
     @Getter private static Logger logger = Logger.getLogger("cactusjuice");
 
-    @Getter(AccessLevel.PRIVATE) private static ArrayList libs = new ArrayList();
+    private static ArrayList<String> libs = new ArrayList<>();
 
     public static void main(String[] args) {
         try {
@@ -31,7 +27,7 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (!Config.isHasConsole()) {
+        if (!Config.HAS_CONSOLE) {
             ConsoleWindow console = new ConsoleWindow();
         }
         makeLogger();
@@ -39,11 +35,20 @@ public class Main {
 
         for (Object lib : libs.toArray()) {
             try {
-                Classpath.addFile(Config.getInstPath() + "/lib/" + lib);
+                Classpath.addFile("lib/" + lib);
             } catch (Exception e) {
-                logger.info("Failed to load \"" + lib + "\".");
+                getLogger().info("Failed to load \"" + lib + "\".");
                 e.printStackTrace();
             }
+        }
+
+        if (args.length == 0 && !Config.HAS_CONSOLE) {
+            String input = JOptionPane.showInputDialog(null, "Enter your arguments. Arguments must be separated by a space.", "Confirmation", JOptionPane.WARNING_MESSAGE);
+            if (input == null) {
+                getLogger().info("No arguments provided. Aborting.");
+                return;
+            }
+            args = input.split(" ");
         }
 
         start(args);
@@ -55,63 +60,78 @@ public class Main {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
             LocalDateTime now = LocalDateTime.now();
             String time = dtf.format(now);
-            File logdir = new File(Config.getInstPath() + "/cactj-logs");
+            File logdir = new File(Config.Dirs.ROOT + "/cactj-logs");
             logdir.mkdirs();
-            Handler file_handler = new FileHandler(Config.getInstPath() + "/cactj-logs/" + time + ".log");
+            Handler file_handler = new FileHandler(Config.Dirs.ROOT + "/cactj-logs/" + time + ".log");
             SimpleFormatter format = new SimpleFormatter();
-            logger.addHandler(file_handler);
+            getLogger().addHandler(file_handler);
             file_handler.setFormatter(format);
-            logger.setLevel(Level.ALL);
+            getLogger().setLevel(Level.ALL);
             file_handler.setLevel(Level.ALL);
-            logger.info("Logging to " + logdir.toString());
-            logger.info("Java version: " + System.getProperty("java.version"));
+            getLogger().info("Logging to " + logdir.toString());
+            getLogger().info("Java version: " + System.getProperty("java.version"));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * Downloads all dependencies listed in dependencies.gradle.
-     * Format for downloadable dependency is: " {4}//[url],[md5]".
-     *
-     * @return True if any were downloaded, False if none were downloaded.
+     * Downloads all dependencies listed in Config.Deps.CACTUS_DEPS.
      */
     private static void getDeps() {
-        logger.info("Checking dependencies...");
-        String file;
-        try {
-            file = new Scanner(Main.class.getResourceAsStream("/dependencies.gradle"), "UTF-8").useDelimiter("\\A").next();
-        } catch (Exception e) {
-            logger.info("Failed to get dependencies from dependencies.gradle.");
-            e.printStackTrace();
-            return;
-        }
-        for (String line : file.split("\n")) {
-            if (line.startsWith("    // ")) {
-                String[] parts = line.replaceFirst(" {4}// ", "").split(",");
-                try {
-                    libs.add(parts[0].substring(parts[0].lastIndexOf('/') + 1));
-                    FileUtils.downloadFile(parts[0], Config.getInstPath() + "/lib/", parts[1].replace("\r", "").replace("\n", ""));
-                } catch (Exception e) {
-                    logger.info("Failed to download dependency. Invalid formatting?");
-                    e.printStackTrace();
-                }
+        getLogger().info("Checking dependencies...");
+        HashMap<String, String> deps = Config.Deps.CACTUS_DEPS;
+
+        for (String dep : deps.keySet()) {
+            try {
+                FileUtils.downloadFile(dep, Config.Dirs.LIB, deps.get(dep));
+                libs.add(dep.substring(dep.lastIndexOf('/') + 1));
+            } catch (Exception e) {
+                getLogger().info("Failed to download dependency: " + dep);
+                e.printStackTrace();
             }
         }
     }
 
     private static void start(String[] a) {
-        logger.info("Welcome to Cactus Juice!");
+        getLogger().info("Welcome to Cactus Juice!");
         try {
-            Config.loadCJConfigFile();
-            logger.info(Directories.getDirWorkspace());
+            getLogger().info(Config.Dirs.ROOT);
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
+        getLogger().info(Arrays.toString(a));
         List args = Arrays.asList(a);
         if (args.contains("setupcj")) {
             Workspace.setupWorkspace();
         }
+        else if (args.contains("cleanup")) {
+            String input = "";
+            getLogger().info("This script will delete your workspace and set most of it to factory defaults.");
+            getLogger().info("Are you sure you want to clean up your workspace? [y/N]");
+            if (Config.HAS_CONSOLE) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                try {
+                    input = reader.readLine();
+                } catch (Exception e) {
+                    getLogger().info("An exception has occurred. Exiting.");
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+            } else {
+                input = JOptionPane.showInputDialog(null, "Are you sure? See console for more information.", "Confirmation", JOptionPane.WARNING_MESSAGE);
+            }
+            if (input.toLowerCase().equals("yes") || input.toLowerCase().equals("y")) {
+                Workspace.cleanup();
+            } else {
+                getLogger().info("Aborting.");
+                System.exit(0);
+            }
+            getLogger().info("Done!");
+        } else {
+            getLogger().info("No valid launch args. Exiting.");
+        }
+        System.exit(0);
     }
 }

@@ -4,7 +4,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.10'
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
 
-    // https://repo1.maven.org/maven2/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar,310f5841387183aca7900fead98d4858
+    // https://repo1.maven.org/maven2/com/google/code/gson/gson
     implementation 'com.google.code.gson:gson:2.8.6'
 
 }

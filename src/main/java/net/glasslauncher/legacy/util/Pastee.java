@@ -1,11 +1,11 @@
 package net.glasslauncher.legacy.util;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.modificationstation.cactusjuice.Main;
-import net.modificationstation.cactusjuice.config.Config;
-import net.modificationstation.cactusjuice.jsontemplate.PasteePost;
-import net.modificationstation.cactusjuice.jsontemplate.PasteePostSection;
-import net.modificationstation.cactusjuice.jsontemplate.PasteeResponse;
+import net.glasslauncher.legacy.jsontemplate.PasteePost;
+import net.glasslauncher.legacy.jsontemplate.PasteePostSection;
+import net.glasslauncher.legacy.jsontemplate.PasteeResponse;
 
 import javax.xml.ws.http.HTTPException;
 import java.io.BufferedReader;
@@ -39,7 +39,7 @@ public class Pastee {
 
     public String post(String name) {
         try {
-            Gson gson = Config.getGsonBuilder().create();
+            Gson gson = new GsonBuilder().create();
             req.setRequestMethod("POST");
             req.setRequestProperty("Content-Type", "application/json");
             req.setRequestProperty("X-Auth-Token", "ak4XFTvAbNJvaEIoycGzOhCYeLkd7JFpZLVtUgutM");

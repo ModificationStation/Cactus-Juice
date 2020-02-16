@@ -23,8 +23,4 @@ jar {
                 'Implementation-Version': version,
                 'Main-Class': 'net.modificationstation.cactusjuice.Main'
     }
-
-    from {
-        "dependencies.gradle"
-    }
 }

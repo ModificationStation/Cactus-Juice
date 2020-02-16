@@ -1,17 +1,25 @@
 package net.glasslauncher.legacy.util;
 
 import net.modificationstation.cactusjuice.Main;
-import net.modificationstation.cactusjuice.config.Config;
+import sun.net.www.protocol.file.FileURLConnection;
 
 import java.io.*;
+import java.net.JarURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
-import java.util.Scanner;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipFile;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class FileUtils {
 
@@ -19,14 +27,6 @@ public class FileUtils {
         return readFile(path, false);
     }
 
-    /**
-     * Reads given file to string. Aimed at text/config files.
-     *
-     * @param path Path to the file to read.
-     * @param isJar If the file is in a jar or not.
-     * @return
-     * @throws IOException If file can't be read.
-     */
     public static String readFile(String path, boolean isJar)
             throws IOException {
         byte[] encoded;
@@ -39,21 +39,41 @@ public class FileUtils {
         return new String(encoded, StandardCharsets.UTF_8);
     }
 
-    public static boolean downloadFile(String urlStr, String path) {
-        return downloadFile(urlStr, path, null);
+    /**
+     * Downloads given URL to target pathStr.
+     * @param urlStr File to download.
+     * @param pathStr Path to save the file to (filename decided by URL).
+     * @return false if no file was downloaded, true if otherwise.
+     */
+    public static boolean downloadFile(String urlStr, String pathStr) {
+        return downloadFile(urlStr, pathStr, null);
     }
 
-    public static boolean downloadFile(String urlStr, String path, String md5) {
-        String filename = urlStr.substring(urlStr.lastIndexOf('/') + 1);
-        return downloadFile(urlStr, path, md5, filename);
+
+    /**
+     * Downloads given URL to target pathStr.
+     * @param urlStr File to download.
+     * @param pathStr Path to save the file to (filename decided by URL).
+     * @param md5 MD5 to compare against. Ignored if null.
+     * @return false if no file was downloaded if it was meant to be, true if otherwise.
+     */
+    public static boolean downloadFile(String urlStr, String pathStr, String md5) {
+        String filename;
+        try {
+            filename = URLDecoder.decode(urlStr.substring(urlStr.lastIndexOf('/') + 1), StandardCharsets.UTF_8.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return downloadFile(urlStr, pathStr, md5, filename);
     }
 
     /**
      * Downloads given URL to target path.
      * @param urlStr File to download.
-     * @param pathStr Path to save the file to (filename decided by URL).
+     * @param pathStr Path to save the file to.
      * @param md5 MD5 to compare against. Ignored if null.
-     * @return false if no file was downloaded, true if otherwise.
+     * @return false if no file was downloaded if it was meant to be, true if otherwise.
      */
     public static boolean downloadFile(String urlStr, String pathStr, String md5, String filename) {
         URL url;
@@ -67,12 +87,11 @@ public class FileUtils {
         File path;
         File file;
         try {
-            path = new File(pathStr);
+            (new File(pathStr)).mkdirs();
             file = new File(pathStr + "/" + filename);
             if (md5 != null && file.exists() && getFileChecksum(MessageDigest.getInstance("MD5"), file).toLowerCase().equals(md5.toLowerCase())) {
                 return true;
             }
-            path.mkdirs();
         } catch (Exception e) {
             Main.getLogger().info("Failed to download file \"" + urlStr + "\": Invalid path.");
             e.printStackTrace();
@@ -104,19 +123,19 @@ public class FileUtils {
      * @return
      * @throws IOException
      */
-    private static String getFileChecksum(MessageDigest digest, File file) throws IOException
+    public static String getFileChecksum(MessageDigest digest, File file) throws IOException
     {
         //Get file input stream for reading the file content
         FileInputStream fis = new FileInputStream(file);
 
         //Create byte array to read data in chunks
         byte[] byteArray = new byte[1024];
-        int bytesCount = 0;
+        int bytesCount;
 
         //Read file data and update in message digest
         while ((bytesCount = fis.read(byteArray)) != -1) {
             digest.update(byteArray, 0, bytesCount);
-        };
+        }
 
         //close the stream; We don't need it now.
         fis.close();
@@ -127,9 +146,8 @@ public class FileUtils {
         //This bytes[] has bytes in decimal format;
         //Convert it to hexadecimal format
         StringBuilder sb = new StringBuilder();
-        for(int i=0; i< bytes.length ;i++)
-        {
-            sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+        for (byte b : bytes) {
+            sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
         }
 
         //return complete hash
@@ -148,50 +166,91 @@ public class FileUtils {
      * @param destDir
      */
     public static void extractZip(String zipFilePath, String destDir) {
-        String destDirBypass;
-
         File dir = new File(destDir);
-        if (Config.getOs().equals("windows")) {
-            destDirBypass = "\\\\?\\" + destDir;
-        } else {
-            destDirBypass = destDir;
-        }
         // create output directory if it doesn't exist
         if(!dir.exists()) dir.mkdirs();
         //buffer for read and write data to file
-        byte[] buffer = new byte[1024];
-        try {
-            FileInputStream fis = new FileInputStream(zipFilePath);
-            ZipInputStream zis = new ZipInputStream(fis);
-            ZipEntry ze = zis.getNextEntry();
-            while(ze != null){
-                String fileName = ze.getName();
-                if (ze.isDirectory()) {
-                    new File(destDir + "/" + fileName).mkdirs();
+        try (ZipFile zipFile = new ZipFile(zipFilePath)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                File entryDestination = new File(dir, entry.getName());
+                if (entry.isDirectory()) {
+                    entryDestination.mkdirs();
                 } else {
-                    File newFile = new File(destDir + "/" + fileName);
-                    File newFileBypass = new File(destDirBypass + "/" + fileName);
-                    //create directories for sub directories in zip
-                    new File(newFile.getParent()).mkdirs();
-                    FileOutputStream fos = new FileOutputStream(newFileBypass);
-                    int len;
-                    while ((len = zis.read(buffer)) > 0) {
-                        fos.write(buffer, 0, len);
-                    }
-                    fos.close();
-                    //close this ZipEntry
-                    zis.closeEntry();
+                    entryDestination.getParentFile().mkdirs();
+                    InputStream in = zipFile.getInputStream(entry);
+                    Files.copy(in, entryDestination.toPath());
+                    in.close();
                 }
-                ze = zis.getNextEntry();
             }
-            //close last ZipEntry
-            zis.closeEntry();
-            zis.close();
-            fis.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    public static void copyFolder(Path src, Path dest) throws IOException {
+        Files.walk(src)
+                .forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+    }
+
+    private static void copy(Path source, Path dest) {
+        try {
+            Files.copy(source, dest, REPLACE_EXISTING);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    public static void delete(File file) {
+        if (file.isDirectory()) {
+            String[] files = Objects.requireNonNull(file.list());
+            if (files.length == 0) {
+                file.delete();
+            } else {
+                for (String temp : files) {
+                    File fileDelete = new File(file, temp);
+                    delete(fileDelete);
+                }
+                if (Objects.requireNonNull(file.list()).length == 0) {
+                    file.delete();
+                }
+            }
+
+        } else {
+            file.delete();
+        }
+    }
+
+    public static void copyResourcesRecursively(URL originUrl, File destination) throws Exception {
+        URLConnection urlConnection = originUrl.openConnection();
+        if (urlConnection instanceof JarURLConnection) {
+            copyJarResourcesRecursively((JarURLConnection) urlConnection, destination);
+        } else if (urlConnection instanceof FileURLConnection) {
+            Files.copy(new File(originUrl.getPath()).toPath(), destination.toPath());
+        } else {
+            throw new Exception("URLConnection[" + urlConnection.getClass().getSimpleName() +
+                    "] is not a recognized/implemented connection type.");
+        }
+    }
+
+    public static void copyJarResourcesRecursively(JarURLConnection jarConnection, File destination) throws IOException {
+        JarFile jarFile = jarConnection.getJarFile();
+        Enumeration<JarEntry> entries = jarFile.entries();
+
+        while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            if (entry.getName().startsWith(jarConnection.getEntryName() + "/")) {
+                String fileName = entry.getName().substring(jarConnection.getEntryName().length());
+                if (!entry.isDirectory()) {
+                    try (InputStream entryInputStream = jarFile.getInputStream(entry)) {
+                        Files.copy(entryInputStream, Paths.get(destination.getAbsolutePath(), fileName));
+                    }
+                } else {
+                    (new File(destination, fileName)).mkdirs();
+                }
+            }
+        }
     }
 
 }
