@@ -25,53 +25,36 @@ public class Config {
     }
 
     public static class Cmds {
-        public static final String PATCHER = Dirs.RUNTIME + "/bin/applydiff.exe";
-        public static final String JAD_RETRO = Dirs.RUNTIME + "/bin/jadretro.jar";
-        public static final String FERNFLOWER = Dirs.RUNTIME + "/bin/fernflower.jar";
-        public static final String JAD_WIN = Dirs.RUNTIME + "/bin/jad.exe";
-        public static final String JAD_LINUX = Dirs.RUNTIME + "/bin/jad.exe";
-        public static final String JAD_OSX = Dirs.RUNTIME + "/bin/jad-osx";
-        public static final String EXCEPTOR = Dirs.RUNTIME + "/bin/exceptor.jar";
-        public static final String SPECIAL_SOURCE = Dirs.RUNTIME + "/bin/SpecialSource-1.8.5.jar";
-        public static final String CMD_RG = "%S -CP {classpath} RetroGuard -searge {conffile}";
-        public static final String CMD_RG_REOBF = "%S -cp {classpath} RetroGuard -notch  {conffile}";
-        public static final String CMD_JAD_RETRO = "%s -jar {jarjr} {targetdir}";
+        public static final String FERNFLOWER = Dirs.RUNTIME + "/fernflower.jar";
+        public static final String TINY_MAPPER = Dirs.RUNTIME + "/tiny-mapper-0.2.1-fat.jar";
         public static final String CMD_RECOMP_CLT = "%s -g -verbose -classpath \"" + Recomp.CLASSPATH_CLIENT + "\" -sourcepath {sourcepath} -d {outpath} {pkgs} {fixes}/*.java";
         public static final String CMD_RECOMP_SRV = "%s -g -verbose -classpath \"" + Recomp.CLASSPATH_SERVER + "\" -sourcepath {sourcepath} -d {outpath} {pkgs}";
-        public static final String CMD_START_CLT = "%s -Xincgc -Xms1024M -Xmx1024M -cp \"" + Recomp.CLASSPATH_CLIENT + "\" net.minecraft.server.MinecraftServer";
-        public static final String CMD_START_SRV = "%s -Xincgc -Xms1024M -Xmx1024M -cp \"" + Recomp.CLASSPATH_SERVER + "\" -Djava.library.path={natives} Start";
-        public static final String CMD_PATCH_WIN = "./%(patcher)s --binary -p1 -u -i ../../{patchfile} -d {srcdir}";
-        public static final String CMD_PATCH_LINUX = "patch --binary -p1 -u -i ../../{patchfile} -d {srcdir}";
-        public static final String CMD_PATCH_OSX = "Patch --binary -p1 -u -i ../../{patchfile} -d {srcdir}";
-        public static final String CMD_FERNFLOWER = "%s -jar {jarff} {conf} {jarin} {jarout}";
-        public static final String CMD_EXCEPTOR = "%s -jar {jarexc} {input} {output} {conf} {log}";
-        public static final String CMD_SPECIAL_SOURCE = "%s -jar {jarexc} -i {input} -o {output} -m {srg}";
+        public static final String CMD_START_CLT = "%s -Xincgc -Xms1024M -Xmx1024M -cp \"" + Recomp.CLASSPATH_CLIENT + "\" -Djava.library.path={natives} Start";
+        public static final String CMD_START_SRV = "%s -Xincgc -Xms1024M -Xmx1024M -cp \"" + Recomp.CLASSPATH_SERVER + "\" net.minecraft.server.MinecraftServer";
+        public static final String CMD_FERNFLOWER = "%s -jar " + FERNFLOWER + " " + Decomp.FF_CONF + " {jarin} {jarout}";
+        public static final String CMD_TINY_MAPPER = "%s -jar " + TINY_MAPPER + " {jarin} {jarout} {mappings} {frommap} {tomap}";
 
-        public String parseCmd(String command, Map<String, String> replaceMap) {
+        public static String parseCmd(String command, Map<String, String> replaceMap) {
+            command = command.replace("%s", System.getProperty("java.home") + "/bin/java");
             for (String key : replaceMap.keySet()) {
-                command = command.replace("{" + key + "}", replaceMap.get(key));
+                command = command.replace("{" + key + "}", replaceMap.get(key).replaceAll(" ", "\\ "));
             }
             return command;
         }
     }
 
     public static class ConfFiles {
-        public static final String CLASSES = Dirs.CONF + "/classes.csv";
-        public static final String METHODS = Dirs.CONF + "/methods.csv";
-        public static final String FIELDS = Dirs.CONF + "/fields.csv";
-        public static final String RG_CLIENT = Dirs.TEMP + "/client_rg.srg";
-        public static final String RG_SERVER = Dirs.TEMP + "/server_rg.srg";
-        public static final String RO_CLIENT = Dirs.TEMP + "/client_ro.srg";
-        public static final String RO_SERVER = Dirs.TEMP + "/server_ro.srg";
+        public static final String MAPPINGS = Dirs.CONF + "/mappings.tinyfilev2";
+        public static final String PATCH = Dirs.CONF + "/patches/vanilla.patch";
+        public static final String PATCHES = Dirs.CONF + "/patches/optional";
     }
 
     public static class Decomp {
-        public static final String CLIENT_CONF = "-rbr=0 -dgs=1 -asc=1";
-        public static final String SERVER_CONF = "-rbr=0 -dgs=1 -asc=1";
-        public static final String CLIENT_OUT = Dirs.OUT + "/client";
-        public static final String SERVER_OUT = Dirs.OUT + "/server";
-        public static final String CLIENT_SRC = Dirs.TEMP + "/minecraft_exc.jar";
-        public static final String SERVER_SRC = Dirs.TEMP + "/minecraft_server_exc.jar";
+        public static final String FF_CONF = "-rbr=0 -dgs=1 -asc=1";
+        public static final String CLIENT_SRC = Dirs.TEMP + "/minecraft_decomp";
+        public static final String SERVER_SRC = Dirs.TEMP + "/minecraft_server_decomp";
+        public static final String CLIENT_DEOBF = Dirs.TEMP + "/minecraft_deobf";
+        public static final String SERVER_DEOBF = Dirs.TEMP + "/minecraft_server_deobf";
         public static final String SOURCE = "net";
     }
 
@@ -103,6 +86,7 @@ public class Config {
         public static final String JINPUT_HASH = "cc07d371f79dc4ed2239e1101ae06313";
         public static final HashMap<String, String> CACTUS_DEPS = new HashMap<String, String>() {{
             put("https://repo1.maven.org/maven2/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar", "310f5841387183aca7900fead98d4858");
+            put("http://dist.wso2.org/maven2/com/google/common/google-collect/1.0-rc1/google-collect-1.0-rc1.jar", "3fbdd4b6803f1e33b84b89b9f11719b4");
         }};
     }
 
@@ -117,7 +101,6 @@ public class Config {
         public static final String CONF = ROOT + "/conf";
         public static final String RUNTIME = ROOT + "/runtime";
         public static final String LIB = ROOT + "/lib";
-        public static final String OUT = ROOT + "/temp/out";
         public static final String NATIVES = Dirs.JARS + "/bin/natives";
         public static final String CACTJ_LIB = Dirs.LIB + "/cactj-lib";
     }
@@ -132,8 +115,8 @@ public class Config {
     }
 
     public static class Jar {
-        public static final String CLIENT = Dirs.JARS + "bin/minecraft.jar";
-        public static final String SERVER = Dirs.JARS + "minecraft_server.jar";
+        public static final String CLIENT = Dirs.JARS + "/bin/minecraft.jar";
+        public static final String SERVER = Dirs.JARS + "/minecraft_server.jar";
     }
 
     public static class Obf {

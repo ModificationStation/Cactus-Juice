@@ -13,6 +13,14 @@ repositories {
 
 apply from: 'dependencies.gradle'
 
+compileJava {
+    // This shuts Gradle up about using FileURLConnection.
+    // We do not care, because legacy (1.5.2=<) Minecraft only really works in Java 8=<.
+    options.compilerArgs << '-XDignore.symbol.file'
+    options.fork = true
+    options.forkOptions.executable = 'javac'
+}
+
 tasks.withType(Jar) {
     destinationDir = file("$rootDir/out")
 }

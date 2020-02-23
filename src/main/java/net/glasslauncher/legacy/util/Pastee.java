@@ -2,10 +2,10 @@ package net.glasslauncher.legacy.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.modificationstation.cactusjuice.Main;
 import net.glasslauncher.legacy.jsontemplate.PasteePost;
 import net.glasslauncher.legacy.jsontemplate.PasteePostSection;
 import net.glasslauncher.legacy.jsontemplate.PasteeResponse;
+import net.modificationstation.cactusjuice.Main;
 
 import javax.xml.ws.http.HTTPException;
 import java.io.BufferedReader;

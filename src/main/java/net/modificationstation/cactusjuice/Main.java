@@ -4,6 +4,8 @@ import lombok.Getter;
 import net.glasslauncher.legacy.ConsoleWindow;
 import net.glasslauncher.legacy.util.Classpath;
 import net.glasslauncher.legacy.util.FileUtils;
+import net.modificationstation.cactusjuice.util.TinyFile;
+import net.modificationstation.cactusjuice.workspace.Decompile;
 import net.modificationstation.cactusjuice.workspace.Workspace;
 
 import javax.swing.*;
@@ -13,11 +15,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.logging.*;
 
 public class Main {
     @Getter private static Logger logger = Logger.getLogger("cactusjuice");
+    @Getter private static ConsoleWindow consoleWindow;
 
     private static ArrayList<String> libs = new ArrayList<>();
 
@@ -28,7 +34,7 @@ public class Main {
             e.printStackTrace();
         }
         if (!Config.HAS_CONSOLE) {
-            ConsoleWindow console = new ConsoleWindow();
+            consoleWindow = new ConsoleWindow();
         }
         makeLogger();
         getDeps();
@@ -37,7 +43,7 @@ public class Main {
             try {
                 Classpath.addFile("lib/" + lib);
             } catch (Exception e) {
-                getLogger().info("Failed to load \"" + lib + "\".");
+                getLogger().severe("Failed to load \"" + lib + "\".");
                 e.printStackTrace();
             }
         }
@@ -46,7 +52,7 @@ public class Main {
             String input = JOptionPane.showInputDialog(null, "Enter your arguments. Arguments must be separated by a space.", "Confirmation", JOptionPane.WARNING_MESSAGE);
             if (input == null) {
                 getLogger().info("No arguments provided. Aborting.");
-                return;
+                System.exit(0);
             }
             args = input.split(" ");
         }
@@ -129,6 +135,16 @@ public class Main {
                 System.exit(0);
             }
             getLogger().info("Done!");
+        }
+        else if (args.contains("decomp")) {
+            Decompile.decompile();
+        }
+        else if (args.contains("test")) {
+            try {
+                TinyFile.main(new String[]{});
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else {
             getLogger().info("No valid launch args. Exiting.");
         }
